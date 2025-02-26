@@ -1,0 +1,46 @@
+name: Convert XLSX to CSV
+
+on:
+  push:
+    paths:
+      - 'data/xlsx/*.xlsx'
+  pull_request:
+    paths:
+      - 'data/xlsx/*.xlsx'
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-pip
+          pip3 install openpyxl
+
+      - name: Convert XLSX files to CSV
+        run: |
+          mkdir -p "data/csv"
+          for file in $(find "data/xlsx" -name "*.xlsx"); do
+            base=$(basename "$file" .xlsx)
+            out_path="data/csv/${base}.csv"
+            python3 tools/convert_xlsx_to_csv.py "$file" "$out_path"
+          done
+
+      - name: Commit files
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add "Design~/Data.Changelog/*"
+          if ! git diff --staged --quiet; then
+            COMMIT_MSG="${{ github.event.head_commit.message }}"
+            git commit -m "Changelog: ${COMMIT_MSG}"
+          fi
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
