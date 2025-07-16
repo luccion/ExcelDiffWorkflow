@@ -3,10 +3,11 @@ name: Convert XLSX to CSV
 on:
   push:
     paths:
-      - 'data/xlsx/*.xlsx'
-  pull_request:
-    paths:
-      - 'data/xlsx/*.xlsx'
+      - "data/xlsx/*.xlsx"
+  # Uncomment the following lines if you want to trigger on pull requests
+  # pull_request:
+  #   paths:
+  #     - 'data/xlsx/*.xlsx'
 
 jobs:
   convert:
@@ -26,7 +27,7 @@ jobs:
           mkdir -p "data/csv"
           for file in $(find "data/xlsx" -name "*.xlsx"); do
             base=$(basename "$file" .xlsx)
-            out_path="data/csv/${base}.csv"
+            out_path="data/csv/${base}.csv"            
             python3 tools/convert_xlsx_to_csv.py "$file" "$out_path"
           done
 
@@ -34,7 +35,7 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add "Design~/Data.Changelog/*"
+          git add "data/csv/*"
           if ! git diff --staged --quiet; then
             COMMIT_MSG="${{ github.event.head_commit.message }}"
             git commit -m "Changelog: ${COMMIT_MSG}"
@@ -44,3 +45,4 @@ jobs:
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}

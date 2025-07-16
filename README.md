@@ -13,6 +13,11 @@ This project provides a GitHub Actions workflow that automatically converts XLSX
 1. Fork the repository.
 2. Add the `.github/workflows/excel-diff.yml` file to your repository.
 3. Ensure that the `tools/convert_xlsx_to_csv.py` script is in the correct path.
+4. **Configure GitHub Token**: The workflow uses `GITHUB_TOKEN` which is automatically provided by GitHub Actions. However, you need to ensure that your repository has the correct permissions:
+   - Go to your repository settings
+   - Navigate to "Actions" → "General"
+   - Under "Workflow permissions", ensure that "Read and write permissions" is selected
+   - This allows the workflow to commit and push the generated CSV files back to your repository
 
 ## Usage
 
